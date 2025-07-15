@@ -310,6 +310,4 @@ INSERT INTO questions (quiz_id, question_text, option1, option2, option3, option
 -- Insert badge data
 INSERT INTO badges (name, description, image_url, condition_type) VALUES
 ('퀴즈 마스터', '퀴즈를 성공적으로 완료했습니다!', 'https://example.com/badges/quiz_master.png', 'quiz_completion'),
-('문화재 탐험가', '첫 번째 문화재를 방문했습니다!', 'https://example.com/badges/explorer.png', 'first_visit'),
-('궁궐 전문가', '모든 궁궐을 방문했습니다!', 'https://example.com/badges/palace_expert.png', 'palace_completion'),
-('서울 문화재 지킴이', '서울의 주요 문화재를 모두 탐방했습니다!', 'https://example.com/badges/seoul_guardian.png', 'seoul_completion');
+('문화재 탐험가', '첫 번째 문화재를 방문했습니다!', 'https://example.com/badges/explorer.png', 'first_visit');
