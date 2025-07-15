@@ -9,7 +9,7 @@ services:
     environment:
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
-      - MYSQL_USERNAME=heritage
+      - MYSQL_USER=heritage
       - MYSQL_PASSWORD=heritage123
       - MYSQL_DATABASE=heritage_tour
       - REDIS_HOST=redis

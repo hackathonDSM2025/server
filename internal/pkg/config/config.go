@@ -52,7 +52,7 @@ func init() {
 		MySQL: MySQLConfig{
 			Host:     getEnv("MYSQL_HOST", "localhost"),
 			Port:     getEnv("MYSQL_PORT", "3306"),
-			Username: getEnv("MYSQL_USERNAME", "root"),
+			Username: getEnv("MYSQL_USER", "root"),
 			Password: getEnv("MYSQL_PASSWORD", "password"),
 			Database: getEnv("MYSQL_DATABASE", "heritage_tour"),
 		},
