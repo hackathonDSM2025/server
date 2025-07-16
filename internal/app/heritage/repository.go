@@ -3,7 +3,6 @@ package heritage
 import (
 	"context"
 	"database/sql"
-	"strings"
 
 	"hackathon-dsm-server/internal/pkg/utils/errors"
 )
@@ -35,16 +34,16 @@ func (r *MySQLRepository) SearchHeritage(ctx context.Context, keyword string) (*
 			  WHERE name LIKE ? 
 			  ORDER BY CASE WHEN name = ? THEN 1 ELSE 2 END, name 
 			  LIMIT 1`
-	
-	searchPattern := "%" + strings.ToLower(keyword) + "%"
-	
+
+	searchPattern := "%" + keyword + "%"
+
 	row := r.db.QueryRowContext(ctx, query, searchPattern, keyword)
 
 	heritage := &Heritage{}
-	err := row.Scan(&heritage.HeritageID, &heritage.Name, &heritage.Description, 
-		&heritage.ImageURL, &heritage.QRCode, &heritage.StoryText, 
+	err := row.Scan(&heritage.HeritageID, &heritage.Name, &heritage.Description,
+		&heritage.ImageURL, &heritage.QRCode, &heritage.StoryText,
 		&heritage.Latitude, &heritage.Longitude, &heritage.CreatedAt)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.NotFound("Heritage not found")
@@ -59,14 +58,14 @@ func (r *MySQLRepository) GetHeritageByQRCode(ctx context.Context, qrCode string
 	query := `SELECT heritage_id, name, description, image_url, qr_code, story_text, latitude, longitude, created_at 
 			  FROM heritage 
 			  WHERE qr_code = ?`
-	
+
 	row := r.db.QueryRowContext(ctx, query, qrCode)
 
 	heritage := &Heritage{}
-	err := row.Scan(&heritage.HeritageID, &heritage.Name, &heritage.Description, 
-		&heritage.ImageURL, &heritage.QRCode, &heritage.StoryText, 
+	err := row.Scan(&heritage.HeritageID, &heritage.Name, &heritage.Description,
+		&heritage.ImageURL, &heritage.QRCode, &heritage.StoryText,
 		&heritage.Latitude, &heritage.Longitude, &heritage.CreatedAt)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.NotFound("Invalid QR code")
@@ -81,13 +80,13 @@ func (r *MySQLRepository) GetUserVisit(ctx context.Context, userID, heritageID i
 	query := `SELECT visit_id, user_id, heritage_id, quiz_completed, quiz_score, visited_at 
 			  FROM user_visits 
 			  WHERE user_id = ? AND heritage_id = ?`
-	
+
 	row := r.db.QueryRowContext(ctx, query, userID, heritageID)
 
 	visit := &UserVisit{}
-	err := row.Scan(&visit.VisitID, &visit.UserID, &visit.HeritageID, 
+	err := row.Scan(&visit.VisitID, &visit.UserID, &visit.HeritageID,
 		&visit.QuizCompleted, &visit.QuizScore, &visit.VisitedAt)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -102,7 +101,7 @@ func (r *MySQLRepository) CreateUserVisit(ctx context.Context, userID, heritageI
 	query := `INSERT INTO user_visits (user_id, heritage_id, quiz_completed, quiz_score) 
 			  VALUES (?, ?, FALSE, 0)
 			  ON DUPLICATE KEY UPDATE visited_at = CURRENT_TIMESTAMP`
-	
+
 	_, err := r.db.ExecContext(ctx, query, userID, heritageID)
 	if err != nil {
 		return errors.InternalServerError("Failed to create visit record")
@@ -114,11 +113,11 @@ func (r *MySQLRepository) CreateUserVisit(ctx context.Context, userID, heritageI
 func (r *MySQLRepository) GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error) {
 	query := `SELECT badge_id, name, description, image_url, created_at 
 			  FROM badges WHERE heritage_id = ? LIMIT 1`
-	
+
 	row := r.db.QueryRowContext(ctx, query, heritageID)
 
 	badge := &Badge{}
-	err := row.Scan(&badge.BadgeID, &badge.Name, &badge.Description, 
+	err := row.Scan(&badge.BadgeID, &badge.Name, &badge.Description,
 		&badge.ImageURL, &badge.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -156,7 +155,7 @@ func (r *MySQLRepository) CheckUserBadgeExists(ctx context.Context, userID, badg
 func (r *MySQLRepository) CreateHeritageReview(ctx context.Context, userID, heritageID int, rating int, reviewText string) error {
 	query := `INSERT INTO heritage_reviews (user_id, heritage_id, rating, review_text) 
 			  VALUES (?, ?, ?, ?)`
-	
+
 	_, err := r.db.ExecContext(ctx, query, userID, heritageID, rating, reviewText)
 	if err != nil {
 		return errors.InternalServerError("CreateHeritageReview DB error: " + err.Error())
@@ -169,13 +168,13 @@ func (r *MySQLRepository) GetHeritageReview(ctx context.Context, userID, heritag
 	query := `SELECT review_id, user_id, heritage_id, rating, review_text, created_at, updated_at 
 			  FROM heritage_reviews 
 			  WHERE user_id = ? AND heritage_id = ?`
-	
+
 	row := r.db.QueryRowContext(ctx, query, userID, heritageID)
 
 	review := &HeritageReview{}
-	err := row.Scan(&review.ReviewID, &review.UserID, &review.HeritageID, 
+	err := row.Scan(&review.ReviewID, &review.UserID, &review.HeritageID,
 		&review.Rating, &review.ReviewText, &review.CreatedAt, &review.UpdatedAt)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -190,7 +189,7 @@ func (r *MySQLRepository) UpdateHeritageReview(ctx context.Context, userID, heri
 	query := `UPDATE heritage_reviews 
 			  SET rating = ?, review_text = ?, updated_at = CURRENT_TIMESTAMP 
 			  WHERE user_id = ? AND heritage_id = ?`
-	
+
 	_, err := r.db.ExecContext(ctx, query, rating, reviewText, userID, heritageID)
 	if err != nil {
 		return errors.InternalServerError("Failed to update review")
@@ -198,4 +197,3 @@ func (r *MySQLRepository) UpdateHeritageReview(ctx context.Context, userID, heri
 
 	return nil
 }
-

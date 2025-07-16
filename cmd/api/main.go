@@ -48,6 +48,12 @@ func main() {
 	router.Use(gin.Logger())
 	router.Use(middleware.CORSMiddleware())
 	router.Use(middleware.ErrorHandler())
+	
+	// Add charset handling middleware
+	router.Use(func(c *gin.Context) {
+		c.Header("Content-Type", "application/json; charset=utf-8")
+		c.Next()
+	})
 
 	// API routes
 	api := router.Group("/api")
