@@ -21,12 +21,11 @@ type Question struct {
 }
 
 type Badge struct {
-	BadgeID       int       `json:"badge_id" db:"badge_id"`
-	Name          string    `json:"name" db:"name"`
-	Description   string    `json:"description" db:"description"`
-	ImageURL      string    `json:"image_url" db:"image_url"`
-	ConditionType string    `json:"condition_type" db:"condition_type"`
-	CreatedAt     time.Time `json:"created_at" db:"created_at"`
+	BadgeID     int       `json:"badge_id" db:"badge_id"`
+	Name        string    `json:"name" db:"name"`
+	Description string    `json:"description" db:"description"`
+	ImageURL    string    `json:"image_url" db:"image_url"`
+	CreatedAt   time.Time `json:"created_at" db:"created_at"`
 }
 
 type UserBadge struct {

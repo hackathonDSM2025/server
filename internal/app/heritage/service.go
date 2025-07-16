@@ -59,8 +59,8 @@ func (s *HeritageService) CreateVisit(ctx context.Context, userID, heritageID in
 			return nil, errors.InternalServerError("Failed to record visit")
 		}
 
-		// Award "first_visit" badge if user doesn't have it yet
-		badge, err := s.repo.GetBadgeByCondition(ctx, "first_visit")
+		// Award heritage-specific badge for first visit if user doesn't have it yet
+		badge, err := s.repo.GetBadgeByHeritageID(ctx, heritage.HeritageID)
 		if err == nil && badge != nil {
 			exists, err := s.repo.CheckUserBadgeExists(ctx, userID, badge.BadgeID)
 			if err == nil && !exists {

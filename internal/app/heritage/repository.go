@@ -13,7 +13,7 @@ type Repository interface {
 	GetHeritageByQRCode(ctx context.Context, qrCode string) (*Heritage, error)
 	GetUserVisit(ctx context.Context, userID, heritageID int) (*UserVisit, error)
 	CreateUserVisit(ctx context.Context, userID, heritageID int) error
-	GetBadgeByCondition(ctx context.Context, conditionType string) (*Badge, error)
+	GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error)
 	CheckUserBadgeExists(ctx context.Context, userID, badgeID int) (bool, error)
 	CreateUserBadge(ctx context.Context, userID, badgeID int) error
 	CreateHeritageReview(ctx context.Context, userID, heritageID int, rating int, reviewText string) error
@@ -111,20 +111,20 @@ func (r *MySQLRepository) CreateUserVisit(ctx context.Context, userID, heritageI
 	return nil
 }
 
-func (r *MySQLRepository) GetBadgeByCondition(ctx context.Context, conditionType string) (*Badge, error) {
-	query := `SELECT badge_id, name, description, image_url, condition_type, created_at 
-			  FROM badges WHERE condition_type = ? LIMIT 1`
+func (r *MySQLRepository) GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error) {
+	query := `SELECT badge_id, name, description, image_url, created_at 
+			  FROM badges WHERE heritage_id = ? LIMIT 1`
 	
-	row := r.db.QueryRowContext(ctx, query, conditionType)
+	row := r.db.QueryRowContext(ctx, query, heritageID)
 
 	badge := &Badge{}
 	err := row.Scan(&badge.BadgeID, &badge.Name, &badge.Description, 
-		&badge.ImageURL, &badge.ConditionType, &badge.CreatedAt)
+		&badge.ImageURL, &badge.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return nil, errors.InternalServerError("Database error")
+		return nil, errors.InternalServerError("GetBadgeByHeritageID DB error: " + err.Error())
 	}
 
 	return badge, nil
@@ -159,7 +159,7 @@ func (r *MySQLRepository) CreateHeritageReview(ctx context.Context, userID, heri
 	
 	_, err := r.db.ExecContext(ctx, query, userID, heritageID, rating, reviewText)
 	if err != nil {
-		return errors.InternalServerError("Failed to create review")
+		return errors.InternalServerError("CreateHeritageReview DB error: " + err.Error())
 	}
 
 	return nil

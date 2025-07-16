@@ -97,19 +97,19 @@ func (r *MySQLRepository) UpdateUserVisitScore(ctx context.Context, userID, heri
 }
 
 func (r *MySQLRepository) GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error) {
-	query := `SELECT badge_id, name, description, image_url, condition_type, created_at 
+	query := `SELECT badge_id, name, description, image_url, created_at 
 			  FROM badges WHERE heritage_id = ? LIMIT 1`
 	
 	row := r.db.QueryRowContext(ctx, query, heritageID)
 
 	badge := &Badge{}
 	err := row.Scan(&badge.BadgeID, &badge.Name, &badge.Description, 
-		&badge.ImageURL, &badge.ConditionType, &badge.CreatedAt)
+		&badge.ImageURL, &badge.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return nil, errors.InternalServerError("Database error")
+		return nil, errors.InternalServerError("GetBadgeByHeritageID DB error: " + err.Error())
 	}
 
 	return badge, nil
