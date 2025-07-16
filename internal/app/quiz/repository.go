@@ -14,6 +14,7 @@ type Repository interface {
 	GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error)
 	CreateUserBadge(ctx context.Context, userID, badgeID int) error
 	CheckUserBadgeExists(ctx context.Context, userID, badgeID int) (bool, error)
+	GetUserVisitStatus(ctx context.Context, userID, heritageID int) (*UserVisitStatus, error)
 }
 
 type MySQLRepository struct {
@@ -66,13 +67,30 @@ func (r *MySQLRepository) GetQuestionsByQuizID(ctx context.Context, quizID int) 
 }
 
 func (r *MySQLRepository) UpdateUserVisitScore(ctx context.Context, userID, heritageID, score int) error {
-	query := `UPDATE user_visits 
-			  SET quiz_completed = TRUE, quiz_score = ? 
-			  WHERE user_id = ? AND heritage_id = ?`
+	// First check if user_visits record exists
+	var visitID int
+	checkQuery := `SELECT visit_id FROM user_visits WHERE user_id = ? AND heritage_id = ?`
+	err := r.db.QueryRowContext(ctx, checkQuery, userID, heritageID).Scan(&visitID)
 	
-	_, err := r.db.ExecContext(ctx, query, score, userID, heritageID)
-	if err != nil {
-		return errors.InternalServerError("Failed to update quiz score")
+	if err == sql.ErrNoRows {
+		// No visit record exists, create one
+		insertQuery := `INSERT INTO user_visits (user_id, heritage_id, quiz_completed, quiz_score) 
+						VALUES (?, ?, TRUE, ?)`
+		_, err := r.db.ExecContext(ctx, insertQuery, userID, heritageID, score)
+		if err != nil {
+			return errors.InternalServerError("Failed to create visit record with quiz score")
+		}
+	} else if err != nil {
+		return errors.InternalServerError("Database error while checking visit record")
+	} else {
+		// Visit record exists, update it
+		updateQuery := `UPDATE user_visits 
+						SET quiz_completed = TRUE, quiz_score = ? 
+						WHERE user_id = ? AND heritage_id = ?`
+		_, err := r.db.ExecContext(ctx, updateQuery, score, userID, heritageID)
+		if err != nil {
+			return errors.InternalServerError("Failed to update quiz score")
+		}
 	}
 
 	return nil
@@ -118,4 +136,29 @@ func (r *MySQLRepository) CheckUserBadgeExists(ctx context.Context, userID, badg
 	}
 
 	return count > 0, nil
+}
+
+func (r *MySQLRepository) GetUserVisitStatus(ctx context.Context, userID, heritageID int) (*UserVisitStatus, error) {
+	query := `SELECT quiz_completed, quiz_score FROM user_visits WHERE user_id = ? AND heritage_id = ?`
+	row := r.db.QueryRowContext(ctx, query, userID, heritageID)
+
+	var quizCompleted bool
+	var quizScore int
+	err := row.Scan(&quizCompleted, &quizScore)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return &UserVisitStatus{
+				Visited:       false,
+				QuizCompleted: false,
+				QuizScore:     0,
+			}, nil
+		}
+		return nil, errors.InternalServerError("Database error")
+	}
+
+	return &UserVisitStatus{
+		Visited:       true,
+		QuizCompleted: quizCompleted,
+		QuizScore:     quizScore,
+	}, nil
 }

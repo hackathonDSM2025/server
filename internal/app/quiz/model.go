@@ -35,3 +35,9 @@ type UserBadge struct {
 	BadgeID     int       `json:"badge_id" db:"badge_id"`
 	EarnedAt    time.Time `json:"earned_at" db:"earned_at"`
 }
+
+type UserVisitStatus struct {
+	Visited       bool `json:"visited"`
+	QuizCompleted bool `json:"quiz_completed"`
+	QuizScore     int  `json:"quiz_score"`
+}

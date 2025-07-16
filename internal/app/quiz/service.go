@@ -46,6 +46,17 @@ func (s *QuizService) GetQuiz(ctx context.Context, heritageID int) (*QuizData, e
 }
 
 func (s *QuizService) SubmitQuiz(ctx context.Context, userID, heritageID int, answers []int) (*SubmitData, error) {
+	// Check user's visit status first
+	visitStatus, err := s.repo.GetUserVisitStatus(ctx, userID, heritageID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Allow quiz retries if not completed with perfect score
+	if visitStatus.QuizCompleted && visitStatus.QuizScore == 100 {
+		return nil, errors.BadRequest("Quiz already completed with perfect score")
+	}
+
 	quiz, err := s.repo.GetQuizByHeritageID(ctx, heritageID)
 	if err != nil {
 		return nil, err
@@ -90,11 +101,9 @@ func (s *QuizService) SubmitQuiz(ctx context.Context, userID, heritageID int, an
 	allCorrect := correctCount == len(questions)
 	canRetry := !allCorrect
 
-	// Update quiz completion status only if all answers are correct
-	if allCorrect {
-		if err := s.repo.UpdateUserVisitScore(ctx, userID, heritageID, score); err != nil {
-			return nil, err
-		}
+	// Always update quiz score (allows retries)
+	if err := s.repo.UpdateUserVisitScore(ctx, userID, heritageID, score); err != nil {
+		return nil, err
 	}
 
 	var newBadge *BadgeData
