@@ -8,8 +8,9 @@ import (
 )
 
 type Repository interface {
-	GetUserBadges(ctx context.Context, userID int) ([]UserBadgeInfo, error)
-	GetBadgeCount(ctx context.Context, userID int) (int, error)
+	GetAllBadges(ctx context.Context) ([]BadgeWithHeritage, error)
+	GetAllBadgesCount(ctx context.Context) (int, error)
+	GetBadgeByID(ctx context.Context, badgeID int) (*BadgeWithHeritage, error)
 	GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error)
 	CheckUserBadgeExists(ctx context.Context, userID, badgeID int) (bool, error)
 	CreateUserBadge(ctx context.Context, userID, badgeID int) error
@@ -23,24 +24,23 @@ func NewMySQLRepository(db *sql.DB) Repository {
 	return &MySQLRepository{db: db}
 }
 
-func (r *MySQLRepository) GetUserBadges(ctx context.Context, userID int) ([]UserBadgeInfo, error) {
-	query := `SELECT b.name, b.image_url, ub.earned_at, h.name as heritage_name
-			  FROM user_badges ub 
-			  JOIN badges b ON ub.badge_id = b.badge_id 
+func (r *MySQLRepository) GetAllBadges(ctx context.Context) ([]BadgeWithHeritage, error) {
+	query := `SELECT b.badge_id, b.heritage_id, b.name, b.description, b.image_url, h.name as heritage_name, b.created_at
+			  FROM badges b 
 			  JOIN heritage h ON b.heritage_id = h.heritage_id
-			  WHERE ub.user_id = ? 
-			  ORDER BY ub.earned_at DESC`
+			  ORDER BY b.created_at DESC`
 	
-	rows, err := r.db.QueryContext(ctx, query, userID)
+	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, errors.InternalServerError("Database error")
 	}
 	defer rows.Close()
 
-	var badges []UserBadgeInfo
+	var badges []BadgeWithHeritage
 	for rows.Next() {
-		var badge UserBadgeInfo
-		err := rows.Scan(&badge.Name, &badge.ImageURL, &badge.EarnedAt, &badge.HeritageName)
+		var badge BadgeWithHeritage
+		err := rows.Scan(&badge.BadgeID, &badge.HeritageID, &badge.Name, &badge.Description, 
+			&badge.ImageURL, &badge.HeritageName, &badge.CreatedAt)
 		if err != nil {
 			return nil, errors.InternalServerError("Database error")
 		}
@@ -50,9 +50,9 @@ func (r *MySQLRepository) GetUserBadges(ctx context.Context, userID int) ([]User
 	return badges, nil
 }
 
-func (r *MySQLRepository) GetBadgeCount(ctx context.Context, userID int) (int, error) {
-	query := `SELECT COUNT(*) FROM user_badges WHERE user_id = ?`
-	row := r.db.QueryRowContext(ctx, query, userID)
+func (r *MySQLRepository) GetAllBadgesCount(ctx context.Context) (int, error) {
+	query := `SELECT COUNT(*) FROM badges`
+	row := r.db.QueryRowContext(ctx, query)
 
 	var count int
 	err := row.Scan(&count)
@@ -61,6 +61,28 @@ func (r *MySQLRepository) GetBadgeCount(ctx context.Context, userID int) (int, e
 	}
 
 	return count, nil
+}
+
+func (r *MySQLRepository) GetBadgeByID(ctx context.Context, badgeID int) (*BadgeWithHeritage, error) {
+	query := `SELECT b.badge_id, b.heritage_id, b.name, b.description, b.image_url, h.name as heritage_name, b.created_at
+			  FROM badges b 
+			  JOIN heritage h ON b.heritage_id = h.heritage_id
+			  WHERE b.badge_id = ?`
+	
+	row := r.db.QueryRowContext(ctx, query, badgeID)
+
+	badge := &BadgeWithHeritage{}
+	err := row.Scan(&badge.BadgeID, &badge.HeritageID, &badge.Name, &badge.Description, 
+		&badge.ImageURL, &badge.HeritageName, &badge.CreatedAt)
+	
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.NotFound("Badge not found")
+		}
+		return nil, errors.InternalServerError("Database error")
+	}
+
+	return badge, nil
 }
 
 func (r *MySQLRepository) GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error) {

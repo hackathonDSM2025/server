@@ -31,3 +31,13 @@ type Badge struct {
 	ConditionType string    `json:"condition_type" db:"condition_type"`
 	CreatedAt     time.Time `json:"created_at" db:"created_at"`
 }
+
+type HeritageReview struct {
+	ReviewID   int       `json:"review_id" db:"review_id"`
+	UserID     int       `json:"user_id" db:"user_id"`
+	HeritageID int       `json:"heritage_id" db:"heritage_id"`
+	Rating     int       `json:"rating" db:"rating"`
+	ReviewText string    `json:"review_text" db:"review_text"`
+	CreatedAt  time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
+}

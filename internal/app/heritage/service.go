@@ -8,7 +8,10 @@ import (
 
 type Service interface {
 	SearchHeritage(ctx context.Context, keyword string) (*SearchData, error)
-	ScanQRCode(ctx context.Context, userID int, qrCode string) (*ScanData, error)
+	CreateVisit(ctx context.Context, userID, heritageID int, qrCode string) (*CreateVisitData, error)
+	CreateOnlyReview(ctx context.Context, userID, heritageID int, rating int, reviewText string) error
+	UpdateOnlyReview(ctx context.Context, userID, heritageID int, rating int, reviewText string) error
+	GetMyReview(ctx context.Context, userID, heritageID int) (*ReviewData, error)
 }
 
 type HeritageService struct {
@@ -34,10 +37,14 @@ func (s *HeritageService) SearchHeritage(ctx context.Context, keyword string) (*
 	}, nil
 }
 
-func (s *HeritageService) ScanQRCode(ctx context.Context, userID int, qrCode string) (*ScanData, error) {
+func (s *HeritageService) CreateVisit(ctx context.Context, userID, heritageID int, qrCode string) (*CreateVisitData, error) {
 	heritage, err := s.repo.GetHeritageByQRCode(ctx, qrCode)
 	if err != nil {
 		return nil, err
+	}
+
+	if heritage.HeritageID != heritageID {
+		return nil, errors.BadRequest("QR code does not match heritage ID")
 	}
 
 	visit, err := s.repo.GetUserVisit(ctx, userID, heritage.HeritageID)
@@ -62,12 +69,57 @@ func (s *HeritageService) ScanQRCode(ctx context.Context, userID int, qrCode str
 		}
 	}
 
-	return &ScanData{
+	return &CreateVisitData{
 		HeritageID:   heritage.HeritageID,
 		Name:         heritage.Name,
 		ImageURL:     heritage.ImageURL,
 		Description:  heritage.Description,
 		Story:        heritage.StoryText,
 		IsFirstVisit: isFirstVisit,
+	}, nil
+}
+
+func (s *HeritageService) CreateOnlyReview(ctx context.Context, userID, heritageID int, rating int, reviewText string) error {
+	existingReview, err := s.repo.GetHeritageReview(ctx, userID, heritageID)
+	if err != nil {
+		return err
+	}
+
+	if existingReview != nil {
+		return errors.BadRequest("Review already exists for this heritage")
+	}
+
+	return s.repo.CreateHeritageReview(ctx, userID, heritageID, rating, reviewText)
+}
+
+func (s *HeritageService) UpdateOnlyReview(ctx context.Context, userID, heritageID int, rating int, reviewText string) error {
+	existingReview, err := s.repo.GetHeritageReview(ctx, userID, heritageID)
+	if err != nil {
+		return err
+	}
+
+	if existingReview == nil {
+		return errors.NotFound("Review not found for this heritage")
+	}
+
+	return s.repo.UpdateHeritageReview(ctx, userID, heritageID, rating, reviewText)
+}
+
+func (s *HeritageService) GetMyReview(ctx context.Context, userID, heritageID int) (*ReviewData, error) {
+	review, err := s.repo.GetHeritageReview(ctx, userID, heritageID)
+	if err != nil {
+		return nil, err
+	}
+
+	if review == nil {
+		return nil, nil
+	}
+
+	return &ReviewData{
+		ReviewID:   review.ReviewID,
+		Rating:     review.Rating,
+		ReviewText: review.ReviewText,
+		CreatedAt:  review.CreatedAt.Format("2006-01-02 15:04:05"),
+		UpdatedAt:  review.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}, nil
 }

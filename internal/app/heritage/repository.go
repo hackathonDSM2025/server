@@ -16,6 +16,9 @@ type Repository interface {
 	GetBadgeByCondition(ctx context.Context, conditionType string) (*Badge, error)
 	CheckUserBadgeExists(ctx context.Context, userID, badgeID int) (bool, error)
 	CreateUserBadge(ctx context.Context, userID, badgeID int) error
+	CreateHeritageReview(ctx context.Context, userID, heritageID int, rating int, reviewText string) error
+	GetHeritageReview(ctx context.Context, userID, heritageID int) (*HeritageReview, error)
+	UpdateHeritageReview(ctx context.Context, userID, heritageID int, rating int, reviewText string) error
 }
 
 type MySQLRepository struct {
@@ -149,3 +152,50 @@ func (r *MySQLRepository) CheckUserBadgeExists(ctx context.Context, userID, badg
 
 	return count > 0, nil
 }
+
+func (r *MySQLRepository) CreateHeritageReview(ctx context.Context, userID, heritageID int, rating int, reviewText string) error {
+	query := `INSERT INTO heritage_reviews (user_id, heritage_id, rating, review_text) 
+			  VALUES (?, ?, ?, ?)`
+	
+	_, err := r.db.ExecContext(ctx, query, userID, heritageID, rating, reviewText)
+	if err != nil {
+		return errors.InternalServerError("Failed to create review")
+	}
+
+	return nil
+}
+
+func (r *MySQLRepository) GetHeritageReview(ctx context.Context, userID, heritageID int) (*HeritageReview, error) {
+	query := `SELECT review_id, user_id, heritage_id, rating, review_text, created_at, updated_at 
+			  FROM heritage_reviews 
+			  WHERE user_id = ? AND heritage_id = ?`
+	
+	row := r.db.QueryRowContext(ctx, query, userID, heritageID)
+
+	review := &HeritageReview{}
+	err := row.Scan(&review.ReviewID, &review.UserID, &review.HeritageID, 
+		&review.Rating, &review.ReviewText, &review.CreatedAt, &review.UpdatedAt)
+	
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, errors.InternalServerError("Database error")
+	}
+
+	return review, nil
+}
+
+func (r *MySQLRepository) UpdateHeritageReview(ctx context.Context, userID, heritageID int, rating int, reviewText string) error {
+	query := `UPDATE heritage_reviews 
+			  SET rating = ?, review_text = ?, updated_at = CURRENT_TIMESTAMP 
+			  WHERE user_id = ? AND heritage_id = ?`
+	
+	_, err := r.db.ExecContext(ctx, query, rating, reviewText, userID, heritageID)
+	if err != nil {
+		return errors.InternalServerError("Failed to update review")
+	}
+
+	return nil
+}
+

@@ -14,3 +14,20 @@ type VisitedPlace struct {
 	Completed   bool      `json:"completed" db:"quiz_completed"`
 }
 
+type UserReview struct {
+	ReviewID     int       `json:"review_id" db:"review_id"`
+	HeritageID   int       `json:"heritage_id" db:"heritage_id"`
+	HeritageName string    `json:"heritage_name" db:"heritage_name"`
+	Rating       int       `json:"rating" db:"rating"`
+	ReviewText   string    `json:"review_text" db:"review_text"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+}
+
+type UserBadge struct {
+	Name         string    `json:"name" db:"name"`
+	ImageURL     string    `json:"image_url" db:"image_url"`
+	EarnedAt     time.Time `json:"earned_at" db:"earned_at"`
+	HeritageName string    `json:"heritage_name" db:"heritage_name"`
+}
+

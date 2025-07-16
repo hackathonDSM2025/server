@@ -4,7 +4,7 @@ type SearchRequest struct {
 	Keyword string `form:"keyword" binding:"required"`
 }
 
-type ScanRequest struct {
+type CreateVisitRequest struct {
 	QRCode string `json:"qrCode" binding:"required"`
 }
 
@@ -21,16 +21,44 @@ type SearchData struct {
 	Description string  `json:"description"`
 }
 
-type ScanResponse struct {
-	Success bool     `json:"success"`
-	Data    ScanData `json:"data"`
+type CreateVisitResponse struct {
+	Success bool            `json:"success"`
+	Data    CreateVisitData `json:"data"`
 }
 
-type ScanData struct {
+type CreateVisitData struct {
 	HeritageID   int    `json:"heritageId"`
 	Name         string `json:"name"`
 	ImageURL     string `json:"imageUrl"`
 	Description  string `json:"description"`
 	Story        string `json:"story"`
 	IsFirstVisit bool   `json:"isFirstVisit"`
+}
+
+type ReviewRequest struct {
+	Rating     int    `json:"rating" binding:"required,min=1,max=5"`
+	ReviewText string `json:"reviewText" binding:"required"`
+}
+
+type GetMyReviewResponse struct {
+	Success bool        `json:"success"`
+	Data    *ReviewData `json:"data"`
+}
+
+type ReviewData struct {
+	ReviewID   int    `json:"reviewId"`
+	Rating     int    `json:"rating"`
+	ReviewText string `json:"reviewText"`
+	CreatedAt  string `json:"createdAt"`
+	UpdatedAt  string `json:"updatedAt"`
+}
+
+type CreateReviewResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
+type UpdateReviewResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }
