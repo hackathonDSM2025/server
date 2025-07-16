@@ -4,12 +4,13 @@
 
 - [개요](#개요)
 - [인증](#인증)
+- [Auth API](#auth-api)
 - [Heritage API](#heritage-api)
 - [User API](#user-api)
-- [Badge API](#badge-api)
-- [Auth API](#auth-api)
 - [Quiz API](#quiz-api)
+- [Badge API](#badge-api)
 - [에러 코드](#에러-코드)
+- [검증 규칙](#검증-규칙)
 
 ---
 
@@ -17,9 +18,9 @@
 
 Heritage Tour API는 문화유산 관광 애플리케이션을 위한 RESTful API입니다.
 
-**Base URL**: `https://pastport.ijw.app/`
+**Base URL**: `https://pastport.ijw.app`
 
-**응답 형식**: JSON
+**응답 형식**: JSON (UTF-8 인코딩)
 
 **공통 응답 구조**:
 
@@ -27,6 +28,15 @@ Heritage Tour API는 문화유산 관광 애플리케이션을 위한 RESTful AP
 {
   "success": true,
   "data": { ... }
+}
+```
+
+**에러 응답 구조**:
+
+```json
+{
+  "success": false,
+  "message": "에러 메시지"
 }
 ```
 
@@ -42,6 +52,8 @@ JWT 토큰을 사용한 Bearer Authentication
 Authorization: Bearer <JWT_TOKEN>
 ```
 
+**토큰 만료 시간**: 1시간
+
 **인증 필요 엔드포인트**:
 
 - 모든 `/api/users/me/*` 엔드포인트
@@ -50,15 +62,100 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
+## Auth API
+
+### 1. 회원가입
+
+**`POST /api/auth/register`**
+
+**Request Body**:
+
+```json
+{
+  "username": "user123",
+  "password": "password123"
+}
+```
+
+**검증 규칙**:
+- `username`: 필수, 중복 불가
+- `password`: 필수, bcrypt 해시화 저장
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "userId": 1,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+### 2. 로그인
+
+**`POST /api/auth/login`**
+
+**Request Body**:
+
+```json
+{
+  "username": "user123",
+  "password": "password123"
+}
+```
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "userId": 1,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+### 3. 사용자명 중복 확인
+
+**`POST /api/auth/check-username`**
+
+**Request Body**:
+
+```json
+{
+  "username": "user123"
+}
+```
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "available": true,
+    "message": "Username is available"
+  }
+}
+```
+
+---
+
 ## Heritage API
 
 ### 1. 문화유산 검색
 
-**`GET /api/heritage`**
+**`GET /api/heritage?keyword=검색어`**
 
 **Query Parameters**:
 
-- `search` (string, required): 검색 키워드
+- `keyword` (string, required): 검색 키워드 (한글 지원)
+
+**검증 규칙**:
+- `keyword`: 필수 파라미터, 빈 문자열 불가
 
 **Response**:
 
@@ -69,8 +166,8 @@ Authorization: Bearer <JWT_TOKEN>
     "name": "경복궁",
     "latitude": 37.5796,
     "longitude": 126.977,
-    "imageUrl": "https://example.com/image.jpg",
-    "description": "조선왕조의 정궁"
+    "imageUrl": "https://example.com/images/gyeongbokgung.jpg",
+    "description": "조선 왕조의 정궁으로 1395년에 창건되었습니다."
   }
 }
 ```
@@ -87,9 +184,13 @@ Authorization: Bearer <JWT_TOKEN>
 
 ```json
 {
-  "qrCode": "HERITAGE_QR_CODE_123"
+  "qrCode": "QR_GYEONGBOKGUNG_001"
 }
 ```
+
+**검증 규칙**:
+- `qrCode`: 필수, 유효한 QR 코드여야 함
+- QR 코드와 heritageId가 일치해야 함
 
 **Response**:
 
@@ -99,13 +200,17 @@ Authorization: Bearer <JWT_TOKEN>
   "data": {
     "heritageId": 1,
     "name": "경복궁",
-    "imageUrl": "https://example.com/image.jpg",
-    "description": "조선왕조의 정궁",
-    "story": "경복궁은 1395년에 창건된...",
+    "imageUrl": "https://example.com/images/gyeongbokgung.jpg",
+    "description": "조선 왕조의 정궁으로 1395년에 창건되었습니다.",
+    "story": "경복궁은 조선 태조 4년(1395년)에 창건된 조선 왕조의 정궁입니다...",
     "isFirstVisit": true
   }
 }
 ```
+
+**특별 기능**:
+- 첫 방문 시 해당 문화유산 배지 자동 수여
+- 중복 방문 시 `isFirstVisit: false`
 
 ### 3. 후기 작성
 
@@ -123,6 +228,11 @@ Authorization: Bearer <JWT_TOKEN>
   "reviewText": "정말 아름다운 궁궐이었습니다!"
 }
 ```
+
+**검증 규칙**:
+- `rating`: 필수, 1-5 범위의 정수
+- `reviewText`: 필수, 빈 문자열 불가
+- 사용자당 문화유산 하나에 대해 하나의 리뷰만 작성 가능
 
 **Response**:
 
@@ -150,6 +260,11 @@ Authorization: Bearer <JWT_TOKEN>
 }
 ```
 
+**검증 규칙**:
+- 기존 리뷰가 존재해야 함
+- `rating`: 필수, 1-5 범위의 정수
+- `reviewText`: 필수, 빈 문자열 불가
+
 **Response**:
 
 ```json
@@ -176,9 +291,18 @@ Authorization: Bearer <JWT_TOKEN>
     "reviewId": 1,
     "rating": 5,
     "reviewText": "정말 아름다운 궁궐이었습니다!",
-    "createdAt": "2024-01-01 10:00:00",
-    "updatedAt": "2024-01-01 10:00:00"
+    "createdAt": "2025-07-16 16:50:08",
+    "updatedAt": "2025-07-16 16:50:08"
   }
+}
+```
+
+**리뷰가 없는 경우**:
+
+```json
+{
+  "success": true,
+  "data": null
 }
 ```
 
@@ -198,7 +322,7 @@ Authorization: Bearer <JWT_TOKEN>
   "data": {
     "userId": 1,
     "username": "user123",
-    "createdAt": "2024-01-01 10:00:00"
+    "createdAt": "2025-07-16 16:41:06"
   }
 }
 ```
@@ -217,11 +341,11 @@ Authorization: Bearer <JWT_TOKEN>
 {
   "success": true,
   "data": {
-    "visitCount": 5,
+    "visitCount": 1,
     "visits": [
       {
         "name": "경복궁",
-        "visitedAt": "2024-01-01",
+        "visitedAt": "2025-07-16",
         "completed": true
       }
     ]
@@ -235,7 +359,7 @@ Authorization: Bearer <JWT_TOKEN>
 {
   "success": true,
   "data": {
-    "visitCount": 5
+    "visitCount": 1
   }
 }
 ```
@@ -254,16 +378,16 @@ Authorization: Bearer <JWT_TOKEN>
 {
   "success": true,
   "data": {
-    "reviewCount": 3,
+    "reviewCount": 1,
     "reviews": [
       {
-        "reviewId": 1,
+        "reviewId": 2,
         "heritageId": 1,
         "heritageName": "경복궁",
-        "rating": 5,
-        "reviewText": "정말 아름다운 궁궐이었습니다!",
-        "createdAt": "2024-01-01 10:00:00",
-        "updatedAt": "2024-01-01 10:00:00"
+        "rating": 4,
+        "reviewText": "Very nice palace with rich history",
+        "createdAt": "2025-07-16 16:50:08",
+        "updatedAt": "2025-07-16 16:50:25"
       }
     ]
   }
@@ -276,7 +400,7 @@ Authorization: Bearer <JWT_TOKEN>
 {
   "success": true,
   "data": {
-    "reviewCount": 3
+    "reviewCount": 1
   }
 }
 ```
@@ -295,12 +419,12 @@ Authorization: Bearer <JWT_TOKEN>
 {
   "success": true,
   "data": {
-    "badgeCount": 2,
+    "badgeCount": 1,
     "badges": [
       {
-        "name": "첫 방문자",
-        "imageUrl": "https://example.com/badge.png",
-        "earnedAt": "2024-01-01",
+        "name": "경복궁 마스터",
+        "imageUrl": "https://example.com/badges/gyeongbokgung.png",
+        "earnedAt": "2025-07-16",
         "heritageName": "경복궁"
       }
     ]
@@ -314,141 +438,7 @@ Authorization: Bearer <JWT_TOKEN>
 {
   "success": true,
   "data": {
-    "badgeCount": 2
-  }
-}
-```
-
----
-
-## Badge API
-
-### 1. 모든 배지 조회
-
-**`GET /api/badges`**
-
-**Response**:
-
-```json
-{
-  "success": true,
-  "data": {
-    "badgeCount": 10,
-    "badges": [
-      {
-        "badgeId": 1,
-        "name": "첫 방문자",
-        "imageUrl": "https://example.com/badge.png",
-        "heritageName": "경복궁",
-        "description": "첫 번째 문화유산 방문 시 획득"
-      }
-    ]
-  }
-}
-```
-
-### 2. 특정 배지 상세 조회
-
-**`GET /api/badges/:badgeId`**
-
-**Path Parameters**:
-
-- `badgeId` (int): 배지 ID
-
-**Response**:
-
-```json
-{
-  "success": true,
-  "data": {
-    "badgeId": 1,
-    "name": "첫 방문자",
-    "description": "첫 번째 문화유산 방문 시 획득",
-    "imageUrl": "https://example.com/badge.png",
-    "heritageName": "경복궁",
-    "createdAt": "2024-01-01 10:00:00"
-  }
-}
-```
-
----
-
-## Auth API
-
-### 1. 회원가입
-
-**`POST /api/auth/register`**
-
-**Request Body**:
-
-```json
-{
-  "username": "user123",
-  "password": "password123"
-}
-```
-
-**Response**:
-
-```json
-{
-  "success": true,
-  "data": {
-    "userId": 1,
-    "username": "user123",
-    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
-  }
-}
-```
-
-### 2. 로그인
-
-**`POST /api/auth/login`**
-
-**Request Body**:
-
-```json
-{
-  "username": "user123",
-  "password": "password123"
-}
-```
-
-**Response**:
-
-```json
-{
-  "success": true,
-  "data": {
-    "userId": 1,
-    "username": "user123",
-    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
-  }
-}
-```
-
-### 3. 토큰 갱신
-
-**`POST /api/auth/refresh`**
-
-**Request Body**:
-
-```json
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
-}
-```
-
-**Response**:
-
-```json
-{
-  "success": true,
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
+    "badgeCount": 1
   }
 }
 ```
@@ -471,10 +461,20 @@ Authorization: Bearer <JWT_TOKEN>
 {
   "success": true,
   "data": {
-    "quizId": 1,
-    "question": "경복궁이 창건된 연도는?",
-    "options": ["1392년", "1395년", "1398년", "1400년"],
-    "correctAnswer": 1
+    "questions": [
+      {
+        "id": 1,
+        "question": "경복궁이 건립된 연도는?",
+        "options": ["1392년", "1394년", "1395년", "1396년"],
+        "correctAnswer": 2
+      },
+      {
+        "id": 2,
+        "question": "경복궁의 정전은?",
+        "options": ["근정전", "인정전", "중화전", "선정전"],
+        "correctAnswer": 0
+      }
+    ]
   }
 }
 ```
@@ -491,9 +491,62 @@ Authorization: Bearer <JWT_TOKEN>
 
 ```json
 {
-  "answer": 1
+  "answers": [2, 0, 0]
 }
 ```
+
+**검증 규칙**:
+- `answers`: 필수, 0-based index 배열
+- 문제 개수와 답안 개수가 일치해야 함
+
+**Response (100점)**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "score": 100,
+    "correctCount": 3,
+    "totalQuestions": 3,
+    "allCorrect": true,
+    "canRetry": false
+  }
+}
+```
+
+**Response (부분 점수)**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "score": 67,
+    "correctCount": 2,
+    "totalQuestions": 3,
+    "allCorrect": false,
+    "canRetry": true,
+    "incorrectAnswers": [
+      {
+        "questionId": 3,
+        "correctAnswer": 1,
+        "userAnswer": 2
+      }
+    ]
+  }
+}
+```
+
+**특별 기능**:
+- 만점(100점) 달성 시 추가 배지 수여 (이미 보유한 경우 제외)
+- 재시도 가능 (최신 점수로 업데이트)
+
+---
+
+## Badge API
+
+### 1. 모든 배지 조회
+
+**`GET /api/badges`**
 
 **Response**:
 
@@ -501,9 +554,47 @@ Authorization: Bearer <JWT_TOKEN>
 {
   "success": true,
   "data": {
-    "correct": true,
-    "score": 100,
-    "explanation": "정답입니다! 경복궁은 1395년에 창건되었습니다."
+    "badgeCount": 5,
+    "badges": [
+      {
+        "badgeId": 1,
+        "name": "경복궁 마스터",
+        "imageUrl": "https://example.com/badges/gyeongbokgung.png",
+        "heritageName": "경복궁",
+        "description": "경복궁 퀴즈를 모두 맞혔습니다!"
+      },
+      {
+        "badgeId": 2,
+        "name": "창덕궁 마스터",
+        "imageUrl": "https://example.com/badges/changdeokgung.png",
+        "heritageName": "창덕궁",
+        "description": "창덕궁 퀴즈를 모두 맞혔습니다!"
+      }
+    ]
+  }
+}
+```
+
+### 2. 특정 배지 상세 조회
+
+**`GET /api/badges/:badgeId`**
+
+**Path Parameters**:
+
+- `badgeId` (int): 배지 ID
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "badgeId": 1,
+    "name": "경복궁 마스터",
+    "description": "경복궁 퀴즈를 모두 맞혔습니다!",
+    "imageUrl": "https://example.com/badges/gyeongbokgung.png",
+    "heritageName": "경복궁",
+    "createdAt": "2025-07-16 16:22:30"
   }
 }
 ```
@@ -530,62 +621,95 @@ Authorization: Bearer <JWT_TOKEN>
 ```json
 {
   "success": false,
-  "error": {
-    "code": "HERITAGE_NOT_FOUND",
-    "message": "Heritage not found"
-  }
+  "message": "Heritage not found"
 }
 ```
 
-### 주요 에러 코드
+### 주요 에러 메시지
 
-| 에러 코드                | 설명                    |
-| ------------------------ | ----------------------- |
-| `HERITAGE_NOT_FOUND`     | 문화유산을 찾을 수 없음 |
-| `INVALID_QR_CODE`        | 유효하지 않은 QR 코드   |
-| `REVIEW_ALREADY_EXISTS`  | 이미 후기가 존재함      |
-| `REVIEW_NOT_FOUND`       | 후기를 찾을 수 없음     |
-| `USER_NOT_AUTHENTICATED` | 사용자 인증 실패        |
-| `INVALID_TOKEN`          | 유효하지 않은 토큰      |
-| `BADGE_NOT_FOUND`        | 배지를 찾을 수 없음     |
+| 에러 메시지                     | 설명                    |
+| ------------------------------ | ----------------------- |
+| `Heritage not found`           | 문화유산을 찾을 수 없음 |
+| `Invalid QR code`              | 유효하지 않은 QR 코드   |
+| `Review already exists for this heritage` | 이미 후기가 존재함      |
+| `Review not found for this heritage` | 후기를 찾을 수 없음     |
+| `User not authenticated`       | 사용자 인증 실패        |
+| `Invalid request body`         | 잘못된 요청 본문        |
+| `Keyword is required`          | 검색 키워드 필수        |
+| `QR code does not match heritage ID` | QR 코드와 문화유산 ID 불일치 |
 
 ---
 
-## 최종 API 개수: 12개
+## 검증 규칙
 
-### 📍 Heritage API (5개)
+### 인증 관련
+- JWT 토큰 필수 (Bearer 방식)
+- 토큰 만료 시간: 1시간
+- 토큰 검증 실패 시 401 에러
 
-- GET /api/heritage?search=keyword
-- POST /api/heritage/:heritageId/visits
-- POST /api/heritage/:heritageId/reviews
-- PUT /api/heritage/:heritageId/reviews
-- GET /api/heritage/:heritageId/reviews/me
+### 문화유산 검색
+- `keyword` 파라미터 필수
+- 한글 키워드 지원
+- 부분 일치 검색 (LIKE 패턴)
+- 정확한 일치 우선순위
 
-### 👤 User API (4개)
+### 방문 기록
+- QR 코드 필수
+- QR 코드와 문화유산 ID 일치 검증
+- 중복 방문 허용 (방문 시간 업데이트)
+- 첫 방문 시 배지 자동 수여
 
-- GET /api/users/me
-- GET /api/users/me/visits
-- GET /api/users/me/reviews
-- GET /api/users/me/badges
+### 후기 시스템
+- 평점: 1-5 범위의 정수
+- 리뷰 텍스트: 빈 문자열 불가
+- 사용자당 문화유산 하나에 대해 하나의 리뷰만 허용
+- 한글 텍스트 지원
 
-### 🏆 Badge API (2개)
+### 퀴즈 시스템
+- 답안 배열 필수
+- 문제 개수와 답안 개수 일치
+- 0-based index 사용
+- 재시도 가능 (최신 점수 업데이트)
 
-- GET /api/badges
-- GET /api/badges/:badgeId
+### 배지 시스템
+- 첫 방문 시 자동 수여
+- 퀴즈 만점 시 추가 수여
+- 중복 배지 방지
+
+---
+
+## 총 API 개수: 13개
 
 ### 🔐 Auth API (3개)
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/check-username`
 
-- POST /api/auth/register
-- POST /api/auth/login
-- POST /api/auth/refresh
+### 📍 Heritage API (5개)
+- `GET /api/heritage?keyword=검색어`
+- `POST /api/heritage/:heritageId/visits`
+- `POST /api/heritage/:heritageId/reviews`
+- `PUT /api/heritage/:heritageId/reviews`
+- `GET /api/heritage/:heritageId/reviews/me`
+
+### 👤 User API (4개)
+- `GET /api/users/me`
+- `GET /api/users/me/visits`
+- `GET /api/users/me/reviews`
+- `GET /api/users/me/badges`
 
 ### 🎯 Quiz API (2개)
+- `GET /api/quiz/:heritageId`
+- `POST /api/quiz/:heritageId/submit`
 
-- GET /api/quiz/:heritageId
-- POST /api/quiz/:heritageId/submit
+### 🏆 Badge API (2개)
+- `GET /api/badges`
+- `GET /api/badges/:badgeId`
 
 ---
 
-**마지막 업데이트**: 2024년 12월
+**최종 검증 완료**: 2025년 7월 16일
 
-🔐 = 인증 필요
+🔐 = 인증 필요  
+✅ = 테스트 완료  
+🇰🇷 = 한글 지원
