@@ -4,12 +4,12 @@ import (
 	"log"
 
 	"hackathon-dsm-server/internal/app/auth"
+	"hackathon-dsm-server/internal/app/badge"
 	"hackathon-dsm-server/internal/app/heritage"
 	"hackathon-dsm-server/internal/app/quiz"
 	"hackathon-dsm-server/internal/app/user"
 	"hackathon-dsm-server/internal/pkg/config"
 	"hackathon-dsm-server/internal/pkg/db/mysql"
-	"hackathon-dsm-server/internal/pkg/db/redis"
 	"hackathon-dsm-server/internal/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -18,22 +18,24 @@ import (
 func main() {
 	// Initialize database connections
 	mysqlDB := mysql.NewConnection()
-	redisClient := redis.NewConnection()
 
 	// Initialize repositories
 	authRepo := auth.NewMySQLRepository(mysqlDB)
+	badgeRepo := badge.NewMySQLRepository(mysqlDB)
 	heritageRepo := heritage.NewMySQLRepository(mysqlDB)
 	quizRepo := quiz.NewMySQLRepository(mysqlDB)
 	userRepo := user.NewMySQLRepository(mysqlDB)
 
 	// Initialize services
 	authService := auth.NewService(authRepo)
+	badgeService := badge.NewService(badgeRepo)
 	heritageService := heritage.NewService(heritageRepo)
 	quizService := quiz.NewService(quizRepo)
 	userService := user.NewService(userRepo)
 
 	// Initialize handlers
 	authHandler := auth.NewHandler(authService)
+	badgeHandler := badge.NewHandler(badgeService)
 	heritageHandler := heritage.NewHandler(heritageService)
 	quizHandler := quiz.NewHandler(quizService)
 	userHandler := user.NewHandler(userService)
@@ -51,6 +53,7 @@ func main() {
 	api := router.Group("/api")
 	{
 		authHandler.RegisterRoutes(api)
+		badgeHandler.RegisterRoutes(api)
 		heritageHandler.RegisterRoutes(api)
 		quizHandler.RegisterRoutes(api)
 		userHandler.RegisterRoutes(api)
@@ -71,5 +74,4 @@ func main() {
 
 	// Close database connections on shutdown
 	defer mysqlDB.Close()
-	defer redisClient.Close()
 }

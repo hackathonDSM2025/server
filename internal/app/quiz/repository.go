@@ -11,7 +11,7 @@ type Repository interface {
 	GetQuizByHeritageID(ctx context.Context, heritageID int) (*Quiz, error)
 	GetQuestionsByQuizID(ctx context.Context, quizID int) ([]Question, error)
 	UpdateUserVisitScore(ctx context.Context, userID, heritageID, score int) error
-	GetBadgeByCondition(ctx context.Context, conditionType string) (*Badge, error)
+	GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error)
 	CreateUserBadge(ctx context.Context, userID, badgeID int) error
 	CheckUserBadgeExists(ctx context.Context, userID, badgeID int) (bool, error)
 }
@@ -78,11 +78,11 @@ func (r *MySQLRepository) UpdateUserVisitScore(ctx context.Context, userID, heri
 	return nil
 }
 
-func (r *MySQLRepository) GetBadgeByCondition(ctx context.Context, conditionType string) (*Badge, error) {
+func (r *MySQLRepository) GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error) {
 	query := `SELECT badge_id, name, description, image_url, condition_type, created_at 
-			  FROM badges WHERE condition_type = ? LIMIT 1`
+			  FROM badges WHERE heritage_id = ? LIMIT 1`
 	
-	row := r.db.QueryRowContext(ctx, query, conditionType)
+	row := r.db.QueryRowContext(ctx, query, heritageID)
 
 	badge := &Badge{}
 	err := row.Scan(&badge.BadgeID, &badge.Name, &badge.Description, 

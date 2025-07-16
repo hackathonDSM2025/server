@@ -6,11 +6,8 @@ type UserProfileResponse struct {
 }
 
 type UserProfileData struct {
-	Nickname      string            `json:"nickname"`
 	VisitedCount  int               `json:"visitedCount"`
-	BadgeCount    int               `json:"badgeCount"`
 	VisitedPlaces []VisitedPlaceDTO `json:"visitedPlaces"`
-	Badges        []BadgeDTO        `json:"badges"`
 }
 
 type VisitedPlaceDTO struct {
@@ -19,8 +16,3 @@ type VisitedPlaceDTO struct {
 	Completed bool   `json:"completed"`
 }
 
-type BadgeDTO struct {
-	Name     string `json:"name"`
-	ImageURL string `json:"imageUrl"`
-	EarnedAt string `json:"earnedAt"`
-}

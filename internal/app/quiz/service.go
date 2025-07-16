@@ -68,22 +68,38 @@ func (s *QuizService) SubmitQuiz(ctx context.Context, userID, heritageID int, an
 	}
 
 	correctCount := 0
+	var incorrectAnswers []IncorrectAnswer
+	
 	for i, question := range questions {
-		if i < len(answers) && answers[i] == question.CorrectAnswer-1 { // Convert to 0-based
-			correctCount++
+		if i < len(answers) {
+			if answers[i] == question.CorrectAnswer-1 { // Convert to 0-based
+				correctCount++
+			} else {
+				// Record incorrect answer for feedback
+				incorrectAnswers = append(incorrectAnswers, IncorrectAnswer{
+					QuestionID:    question.QuestionID,
+					UserAnswer:    answers[i],
+					CorrectAnswer: question.CorrectAnswer - 1, // Convert to 0-based
+					QuestionText:  question.QuestionText,
+				})
+			}
 		}
 	}
 
 	score := (correctCount * 100) / len(questions)
-	passed := score >= 70
+	allCorrect := correctCount == len(questions)
+	canRetry := !allCorrect
 
-	if err := s.repo.UpdateUserVisitScore(ctx, userID, heritageID, score); err != nil {
-		return nil, err
+	// Update quiz completion status only if all answers are correct
+	if allCorrect {
+		if err := s.repo.UpdateUserVisitScore(ctx, userID, heritageID, score); err != nil {
+			return nil, err
+		}
 	}
 
 	var newBadge *BadgeData
-	if passed {
-		badge, err := s.repo.GetBadgeByCondition(ctx, "quiz_completion")
+	if allCorrect {
+		badge, err := s.repo.GetBadgeByHeritageID(ctx, heritageID)
 		if err != nil {
 			return nil, err
 		}
@@ -108,8 +124,12 @@ func (s *QuizService) SubmitQuiz(ctx context.Context, userID, heritageID int, an
 	}
 
 	return &SubmitData{
-		Score:    score,
-		Passed:   passed,
-		NewBadge: newBadge,
+		Score:            score,
+		CorrectCount:     correctCount,
+		TotalQuestions:   len(questions),
+		AllCorrect:       allCorrect,
+		CanRetry:         canRetry,
+		IncorrectAnswers: incorrectAnswers,
+		NewBadge:         newBadge,
 	}, nil
 }

@@ -26,12 +26,23 @@ type SubmitResponse struct {
 }
 
 type SubmitData struct {
-	Score    int       `json:"score"`
-	Passed   bool      `json:"passed"`
-	NewBadge *BadgeData `json:"newBadge,omitempty"`
+	Score           int              `json:"score"`
+	CorrectCount    int              `json:"correctCount"`
+	TotalQuestions  int              `json:"totalQuestions"`
+	AllCorrect      bool             `json:"allCorrect"`
+	CanRetry        bool             `json:"canRetry"`
+	IncorrectAnswers []IncorrectAnswer `json:"incorrectAnswers,omitempty"`
+	NewBadge        *BadgeData       `json:"newBadge,omitempty"`
 }
 
 type BadgeData struct {
 	Name     string `json:"name"`
 	ImageURL string `json:"imageUrl"`
+}
+
+type IncorrectAnswer struct {
+	QuestionID     int    `json:"questionId"`
+	UserAnswer     int    `json:"userAnswer"`
+	CorrectAnswer  int    `json:"correctAnswer"`
+	QuestionText   string `json:"questionText"`
 }

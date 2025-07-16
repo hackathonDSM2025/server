@@ -10,9 +10,7 @@ import (
 type Repository interface {
 	GetUserByID(ctx context.Context, userID int) (*User, error)
 	GetVisitedPlaces(ctx context.Context, userID int) ([]VisitedPlace, error)
-	GetUserBadges(ctx context.Context, userID int) ([]UserBadgeInfo, error)
 	GetVisitedCount(ctx context.Context, userID int) (int, error)
-	GetBadgeCount(ctx context.Context, userID int) (int, error)
 }
 
 type MySQLRepository struct {
@@ -24,11 +22,11 @@ func NewMySQLRepository(db *sql.DB) Repository {
 }
 
 func (r *MySQLRepository) GetUserByID(ctx context.Context, userID int) (*User, error) {
-	query := `SELECT user_id, email, nickname, created_at FROM users WHERE user_id = ?`
+	query := `SELECT user_id, username, created_at FROM users WHERE user_id = ?`
 	row := r.db.QueryRowContext(ctx, query, userID)
 
 	user := &User{}
-	err := row.Scan(&user.UserID, &user.Email, &user.Nickname, &user.CreatedAt)
+	err := row.Scan(&user.UserID, &user.Username, &user.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.NotFound("User not found")
@@ -65,47 +63,8 @@ func (r *MySQLRepository) GetVisitedPlaces(ctx context.Context, userID int) ([]V
 	return places, nil
 }
 
-func (r *MySQLRepository) GetUserBadges(ctx context.Context, userID int) ([]UserBadgeInfo, error) {
-	query := `SELECT b.name, b.image_url, ub.earned_at 
-			  FROM user_badges ub 
-			  JOIN badges b ON ub.badge_id = b.badge_id 
-			  WHERE ub.user_id = ? 
-			  ORDER BY ub.earned_at DESC`
-	
-	rows, err := r.db.QueryContext(ctx, query, userID)
-	if err != nil {
-		return nil, errors.InternalServerError("Database error")
-	}
-	defer rows.Close()
-
-	var badges []UserBadgeInfo
-	for rows.Next() {
-		var badge UserBadgeInfo
-		err := rows.Scan(&badge.Name, &badge.ImageURL, &badge.EarnedAt)
-		if err != nil {
-			return nil, errors.InternalServerError("Database error")
-		}
-		badges = append(badges, badge)
-	}
-
-	return badges, nil
-}
-
 func (r *MySQLRepository) GetVisitedCount(ctx context.Context, userID int) (int, error) {
 	query := `SELECT COUNT(*) FROM user_visits WHERE user_id = ?`
-	row := r.db.QueryRowContext(ctx, query, userID)
-
-	var count int
-	err := row.Scan(&count)
-	if err != nil {
-		return 0, errors.InternalServerError("Database error")
-	}
-
-	return count, nil
-}
-
-func (r *MySQLRepository) GetBadgeCount(ctx context.Context, userID int) (int, error) {
-	query := `SELECT COUNT(*) FROM user_badges WHERE user_id = ?`
 	row := r.db.QueryRowContext(ctx, query, userID)
 
 	var count int

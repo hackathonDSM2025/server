@@ -1,14 +1,17 @@
 package auth
 
 type RegisterRequest struct {
-	Email    string `json:"email" binding:"required,email"`
+	Username string `json:"username" binding:"required,min=3"`
 	Password string `json:"password" binding:"required,min=6"`
-	Nickname string `json:"nickname" binding:"required,min=2"`
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
+	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
+}
+
+type CheckUsernameRequest struct {
+	Username string `json:"username" binding:"required,min=3"`
 }
 
 type AuthResponse struct {
@@ -16,8 +19,17 @@ type AuthResponse struct {
 	Data    AuthData `json:"data"`
 }
 
+type CheckUsernameResponse struct {
+	Success bool                   `json:"success"`
+	Data    CheckUsernameData     `json:"data"`
+}
+
 type AuthData struct {
-	UserID   int    `json:"userId"`
-	Nickname string `json:"nickname,omitempty"`
-	Token    string `json:"token"`
+	UserID int    `json:"userId"`
+	Token  string `json:"token"`
+}
+
+type CheckUsernameData struct {
+	Available bool   `json:"available"`
+	Message   string `json:"message"`
 }

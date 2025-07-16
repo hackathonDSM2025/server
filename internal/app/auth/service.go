@@ -12,6 +12,7 @@ import (
 type Service interface {
 	Register(ctx context.Context, req *RegisterRequest) (*AuthData, error)
 	Login(ctx context.Context, req *LoginRequest) (*AuthData, error)
+	CheckUsername(ctx context.Context, req *CheckUsernameRequest) (*CheckUsernameData, error)
 }
 
 type AuthService struct {
@@ -29,9 +30,8 @@ func (s *AuthService) Register(ctx context.Context, req *RegisterRequest) (*Auth
 	}
 
 	user := &User{
-		Email:    req.Email,
+		Username: req.Username,
 		Password: string(hashedPassword),
-		Nickname: req.Nickname,
 	}
 
 	if err := s.repo.CreateUser(ctx, user); err != nil {
@@ -50,13 +50,13 @@ func (s *AuthService) Register(ctx context.Context, req *RegisterRequest) (*Auth
 }
 
 func (s *AuthService) Login(ctx context.Context, req *LoginRequest) (*AuthData, error) {
-	user, err := s.repo.GetUserByEmail(ctx, req.Email)
+	user, err := s.repo.GetUserByUsername(ctx, req.Username)
 	if err != nil {
-		return nil, errors.Unauthorized("Invalid email or password")
+		return nil, errors.Unauthorized("Invalid username or password")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		return nil, errors.Unauthorized("Invalid email or password")
+		return nil, errors.Unauthorized("Invalid username or password")
 	}
 
 	token, err := jwt.GenerateAccessToken(user.UserID)
@@ -65,8 +65,25 @@ func (s *AuthService) Login(ctx context.Context, req *LoginRequest) (*AuthData, 
 	}
 
 	return &AuthData{
-		UserID:   user.UserID,
-		Nickname: user.Nickname,
-		Token:    token,
+		UserID: user.UserID,
+		Token:  token,
+	}, nil
+}
+
+func (s *AuthService) CheckUsername(ctx context.Context, req *CheckUsernameRequest) (*CheckUsernameData, error) {
+	_, err := s.repo.GetUserByUsername(ctx, req.Username)
+	if err != nil {
+		if customErr, ok := err.(*errors.CustomError); ok && customErr.Status == 404 {
+			return &CheckUsernameData{
+				Available: true,
+				Message:   "Username is available",
+			}, nil
+		}
+		return nil, err
+	}
+
+	return &CheckUsernameData{
+		Available: false,
+		Message:   "Username is already taken",
 	}, nil
 }

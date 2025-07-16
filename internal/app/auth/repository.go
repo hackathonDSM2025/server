@@ -9,7 +9,7 @@ import (
 
 type Repository interface {
 	CreateUser(ctx context.Context, user *User) error
-	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	GetUserByUsername(ctx context.Context, username string) (*User, error)
 	GetUserByID(ctx context.Context, userID int) (*User, error)
 }
 
@@ -22,10 +22,10 @@ func NewMySQLRepository(db *sql.DB) Repository {
 }
 
 func (r *MySQLRepository) CreateUser(ctx context.Context, user *User) error {
-	query := `INSERT INTO users (email, password, nickname) VALUES (?, ?, ?)`
-	result, err := r.db.ExecContext(ctx, query, user.Email, user.Password, user.Nickname)
+	query := `INSERT INTO users (username, password) VALUES (?, ?)`
+	result, err := r.db.ExecContext(ctx, query, user.Username, user.Password)
 	if err != nil {
-		return errors.Conflict("Email already exists")
+		return errors.Conflict("Username already exists")
 	}
 
 	userID, err := result.LastInsertId()
@@ -37,12 +37,12 @@ func (r *MySQLRepository) CreateUser(ctx context.Context, user *User) error {
 	return nil
 }
 
-func (r *MySQLRepository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
-	query := `SELECT user_id, email, password, nickname, created_at FROM users WHERE email = ?`
-	row := r.db.QueryRowContext(ctx, query, email)
+func (r *MySQLRepository) GetUserByUsername(ctx context.Context, username string) (*User, error) {
+	query := `SELECT user_id, username, password, created_at FROM users WHERE username = ?`
+	row := r.db.QueryRowContext(ctx, query, username)
 
 	user := &User{}
-	err := row.Scan(&user.UserID, &user.Email, &user.Password, &user.Nickname, &user.CreatedAt)
+	err := row.Scan(&user.UserID, &user.Username, &user.Password, &user.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.NotFound("User not found")
@@ -54,11 +54,11 @@ func (r *MySQLRepository) GetUserByEmail(ctx context.Context, email string) (*Us
 }
 
 func (r *MySQLRepository) GetUserByID(ctx context.Context, userID int) (*User, error) {
-	query := `SELECT user_id, email, password, nickname, created_at FROM users WHERE user_id = ?`
+	query := `SELECT user_id, username, password, created_at FROM users WHERE user_id = ?`
 	row := r.db.QueryRowContext(ctx, query, userID)
 
 	user := &User{}
-	err := row.Scan(&user.UserID, &user.Email, &user.Password, &user.Nickname, &user.CreatedAt)
+	err := row.Scan(&user.UserID, &user.Username, &user.Password, &user.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.NotFound("User not found")

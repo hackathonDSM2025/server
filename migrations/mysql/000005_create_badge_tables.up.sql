@@ -1,10 +1,12 @@
 CREATE TABLE badges (
     badge_id INT AUTO_INCREMENT PRIMARY KEY,
+    heritage_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     image_url VARCHAR(500),
-    condition_type VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (heritage_id) REFERENCES heritage(heritage_id) ON DELETE CASCADE,
+    INDEX idx_heritage_id (heritage_id)
 );
 
 CREATE TABLE user_badges (
