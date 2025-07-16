@@ -1,6 +1,7 @@
 # Heritage Tour API 명세서
 
 ## 📋 목차
+
 - [개요](#개요)
 - [인증](#인증)
 - [Heritage API](#heritage-api)
@@ -16,11 +17,12 @@
 
 Heritage Tour API는 문화유산 관광 애플리케이션을 위한 RESTful API입니다.
 
-**Base URL**: `http://localhost:8080`
+**Base URL**: `https://pastport.ijw.app/`
 
 **응답 형식**: JSON
 
 **공통 응답 구조**:
+
 ```json
 {
   "success": true,
@@ -35,11 +37,13 @@ Heritage Tour API는 문화유산 관광 애플리케이션을 위한 RESTful AP
 JWT 토큰을 사용한 Bearer Authentication
 
 **Header**:
+
 ```
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 **인증 필요 엔드포인트**:
+
 - 모든 `/api/users/me/*` 엔드포인트
 - 모든 `/api/heritage/*/visits` 및 `/api/heritage/*/reviews` 엔드포인트
 - 모든 `/api/quiz/*` 엔드포인트
@@ -53,16 +57,18 @@ Authorization: Bearer <JWT_TOKEN>
 **`GET /api/heritage`**
 
 **Query Parameters**:
+
 - `search` (string, required): 검색 키워드
 
 **Response**:
+
 ```json
 {
   "success": true,
   "data": {
     "name": "경복궁",
     "latitude": 37.5796,
-    "longitude": 126.9770,
+    "longitude": 126.977,
     "imageUrl": "https://example.com/image.jpg",
     "description": "조선왕조의 정궁"
   }
@@ -74,9 +80,11 @@ Authorization: Bearer <JWT_TOKEN>
 **`POST /api/heritage/:heritageId/visits`** 🔐
 
 **Path Parameters**:
+
 - `heritageId` (int): 문화유산 ID
 
 **Request Body**:
+
 ```json
 {
   "qrCode": "HERITAGE_QR_CODE_123"
@@ -84,6 +92,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -103,9 +112,11 @@ Authorization: Bearer <JWT_TOKEN>
 **`POST /api/heritage/:heritageId/reviews`** 🔐
 
 **Path Parameters**:
+
 - `heritageId` (int): 문화유산 ID
 
 **Request Body**:
+
 ```json
 {
   "rating": 5,
@@ -114,6 +125,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -126,9 +138,11 @@ Authorization: Bearer <JWT_TOKEN>
 **`PUT /api/heritage/:heritageId/reviews`** 🔐
 
 **Path Parameters**:
+
 - `heritageId` (int): 문화유산 ID
 
 **Request Body**:
+
 ```json
 {
   "rating": 4,
@@ -137,6 +151,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -149,9 +164,11 @@ Authorization: Bearer <JWT_TOKEN>
 **`GET /api/heritage/:heritageId/reviews/me`** 🔐
 
 **Path Parameters**:
+
 - `heritageId` (int): 문화유산 ID
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -174,6 +191,7 @@ Authorization: Bearer <JWT_TOKEN>
 **`GET /api/users/me`** 🔐
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -190,9 +208,11 @@ Authorization: Bearer <JWT_TOKEN>
 **`GET /api/users/me/visits`** 🔐
 
 **Query Parameters**:
+
 - `count_only` (boolean, optional): true면 개수만 반환
 
 **Response (전체 목록)**:
+
 ```json
 {
   "success": true,
@@ -210,6 +230,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (개수만)**:
+
 ```json
 {
   "success": true,
@@ -224,9 +245,11 @@ Authorization: Bearer <JWT_TOKEN>
 **`GET /api/users/me/reviews`** 🔐
 
 **Query Parameters**:
+
 - `count_only` (boolean, optional): true면 개수만 반환
 
 **Response (전체 목록)**:
+
 ```json
 {
   "success": true,
@@ -248,6 +271,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (개수만)**:
+
 ```json
 {
   "success": true,
@@ -262,9 +286,11 @@ Authorization: Bearer <JWT_TOKEN>
 **`GET /api/users/me/badges`** 🔐
 
 **Query Parameters**:
+
 - `count_only` (boolean, optional): true면 개수만 반환
 
 **Response (전체 목록)**:
+
 ```json
 {
   "success": true,
@@ -283,6 +309,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response (개수만)**:
+
 ```json
 {
   "success": true,
@@ -301,6 +328,7 @@ Authorization: Bearer <JWT_TOKEN>
 **`GET /api/badges`**
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -324,9 +352,11 @@ Authorization: Bearer <JWT_TOKEN>
 **`GET /api/badges/:badgeId`**
 
 **Path Parameters**:
+
 - `badgeId` (int): 배지 ID
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -350,6 +380,7 @@ Authorization: Bearer <JWT_TOKEN>
 **`POST /api/auth/register`**
 
 **Request Body**:
+
 ```json
 {
   "username": "user123",
@@ -358,6 +389,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -375,6 +407,7 @@ Authorization: Bearer <JWT_TOKEN>
 **`POST /api/auth/login`**
 
 **Request Body**:
+
 ```json
 {
   "username": "user123",
@@ -383,6 +416,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -400,6 +434,7 @@ Authorization: Bearer <JWT_TOKEN>
 **`POST /api/auth/refresh`**
 
 **Request Body**:
+
 ```json
 {
   "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
@@ -407,6 +442,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -426,9 +462,11 @@ Authorization: Bearer <JWT_TOKEN>
 **`GET /api/quiz/:heritageId`** 🔐
 
 **Path Parameters**:
+
 - `heritageId` (int): 문화유산 ID
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -446,9 +484,11 @@ Authorization: Bearer <JWT_TOKEN>
 **`POST /api/quiz/:heritageId/submit`** 🔐
 
 **Path Parameters**:
+
 - `heritageId` (int): 문화유산 ID
 
 **Request Body**:
+
 ```json
 {
   "answer": 1
@@ -456,6 +496,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -473,16 +514,16 @@ Authorization: Bearer <JWT_TOKEN>
 
 ### HTTP 상태 코드
 
-| 상태 코드 | 설명 |
-|-----------|------|
-| 200 | 성공 |
-| 201 | 생성 성공 |
-| 400 | 잘못된 요청 |
-| 401 | 인증 실패 |
-| 403 | 권한 없음 |
-| 404 | 리소스 없음 |
-| 409 | 충돌 (중복 생성) |
-| 500 | 서버 오류 |
+| 상태 코드 | 설명             |
+| --------- | ---------------- |
+| 200       | 성공             |
+| 201       | 생성 성공        |
+| 400       | 잘못된 요청      |
+| 401       | 인증 실패        |
+| 403       | 권한 없음        |
+| 404       | 리소스 없음      |
+| 409       | 충돌 (중복 생성) |
+| 500       | 서버 오류        |
 
 ### 에러 응답 형식
 
@@ -498,21 +539,22 @@ Authorization: Bearer <JWT_TOKEN>
 
 ### 주요 에러 코드
 
-| 에러 코드 | 설명 |
-|-----------|------|
-| `HERITAGE_NOT_FOUND` | 문화유산을 찾을 수 없음 |
-| `INVALID_QR_CODE` | 유효하지 않은 QR 코드 |
-| `REVIEW_ALREADY_EXISTS` | 이미 후기가 존재함 |
-| `REVIEW_NOT_FOUND` | 후기를 찾을 수 없음 |
-| `USER_NOT_AUTHENTICATED` | 사용자 인증 실패 |
-| `INVALID_TOKEN` | 유효하지 않은 토큰 |
-| `BADGE_NOT_FOUND` | 배지를 찾을 수 없음 |
+| 에러 코드                | 설명                    |
+| ------------------------ | ----------------------- |
+| `HERITAGE_NOT_FOUND`     | 문화유산을 찾을 수 없음 |
+| `INVALID_QR_CODE`        | 유효하지 않은 QR 코드   |
+| `REVIEW_ALREADY_EXISTS`  | 이미 후기가 존재함      |
+| `REVIEW_NOT_FOUND`       | 후기를 찾을 수 없음     |
+| `USER_NOT_AUTHENTICATED` | 사용자 인증 실패        |
+| `INVALID_TOKEN`          | 유효하지 않은 토큰      |
+| `BADGE_NOT_FOUND`        | 배지를 찾을 수 없음     |
 
 ---
 
 ## 최종 API 개수: 12개
 
 ### 📍 Heritage API (5개)
+
 - GET /api/heritage?search=keyword
 - POST /api/heritage/:heritageId/visits
 - POST /api/heritage/:heritageId/reviews
@@ -520,21 +562,25 @@ Authorization: Bearer <JWT_TOKEN>
 - GET /api/heritage/:heritageId/reviews/me
 
 ### 👤 User API (4개)
+
 - GET /api/users/me
 - GET /api/users/me/visits
 - GET /api/users/me/reviews
 - GET /api/users/me/badges
 
 ### 🏆 Badge API (2개)
+
 - GET /api/badges
 - GET /api/badges/:badgeId
 
 ### 🔐 Auth API (3개)
+
 - POST /api/auth/register
 - POST /api/auth/login
 - POST /api/auth/refresh
 
 ### 🎯 Quiz API (2개)
+
 - GET /api/quiz/:heritageId
 - POST /api/quiz/:heritageId/submit
 
