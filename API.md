@@ -209,7 +209,7 @@ Authorization: Bearer <JWT_TOKEN>
 ```
 
 **특별 기능**:
-- 첫 방문 시 해당 문화유산 배지 자동 수여
+- 첫 방문 기록 저장
 - 중복 방문 시 `isFirstVisit: false`
 
 ### 3. 후기 작성
@@ -499,7 +499,26 @@ Authorization: Bearer <JWT_TOKEN>
 - `answers`: 필수, 0-based index 배열
 - 문제 개수와 답안 개수가 일치해야 함
 
-**Response (100점)**:
+**Response (100점 - 배지 수여)**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "score": 100,
+    "correctCount": 3,
+    "totalQuestions": 3,
+    "allCorrect": true,
+    "canRetry": false,
+    "newBadge": {
+      "name": "경복궁 마스터",
+      "imageUrl": "https://example.com/badges/gyeongbokgung.png"
+    }
+  }
+}
+```
+
+**Response (100점 - 이미 배지 보유)**:
 
 ```json
 {
@@ -529,16 +548,22 @@ Authorization: Bearer <JWT_TOKEN>
       {
         "questionId": 3,
         "correctAnswer": 1,
-        "userAnswer": 2
+        "userAnswer": 2,
+        "questionText": "경복궁의 정전은?"
       }
     ]
   }
 }
 ```
 
+**배지 수여 조건**:
+- **만점(100점) 달성** 시에만 해당 문화유산 배지 수여
+- 이미 보유한 배지는 중복 수여하지 않음
+- 배지 수여 시 `newBadge` 필드에 배지 정보 포함
+
 **특별 기능**:
-- 만점(100점) 달성 시 추가 배지 수여 (이미 보유한 경우 제외)
 - 재시도 가능 (최신 점수로 업데이트)
+- 만점 달성 시 배지 자동 수여
 
 ---
 
@@ -657,7 +682,7 @@ Authorization: Bearer <JWT_TOKEN>
 - QR 코드 필수
 - QR 코드와 문화유산 ID 일치 검증
 - 중복 방문 허용 (방문 시간 업데이트)
-- 첫 방문 시 배지 자동 수여
+- 첫 방문 기록 저장
 
 ### 후기 시스템
 - 평점: 1-5 범위의 정수
@@ -672,9 +697,9 @@ Authorization: Bearer <JWT_TOKEN>
 - 재시도 가능 (최신 점수 업데이트)
 
 ### 배지 시스템
-- 첫 방문 시 자동 수여
-- 퀴즈 만점 시 추가 수여
-- 중복 배지 방지
+- **퀴즈 만점(100점) 달성 시에만** 해당 문화유산 배지 수여
+- 이미 보유한 배지는 중복 수여하지 않음
+- 배지 수여 시 응답에 `newBadge` 정보 포함
 
 ---
 
