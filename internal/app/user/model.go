@@ -25,9 +25,10 @@ type UserReview struct {
 }
 
 type UserBadge struct {
-	Name         string    `json:"name" db:"name"`
-	ImageURL     string    `json:"image_url" db:"image_url"`
-	EarnedAt     time.Time `json:"earned_at" db:"earned_at"`
-	HeritageName string    `json:"heritage_name" db:"heritage_name"`
+	Name              string    `json:"name" db:"name"`
+	ImageURL          string    `json:"image_url" db:"image_url"`
+	EarnedAt          time.Time `json:"earned_at" db:"earned_at"`
+	HeritageName      string    `json:"heritage_name" db:"heritage_name"`
+	HeritageImageURL  string    `json:"heritage_image_url" db:"heritage_image_url"`
 }
 

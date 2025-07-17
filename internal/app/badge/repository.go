@@ -25,7 +25,7 @@ func NewMySQLRepository(db *sql.DB) Repository {
 }
 
 func (r *MySQLRepository) GetAllBadges(ctx context.Context) ([]BadgeWithHeritage, error) {
-	query := `SELECT b.badge_id, b.heritage_id, b.name, b.description, b.image_url, h.name as heritage_name, b.created_at
+	query := `SELECT b.badge_id, b.heritage_id, b.name, b.description, b.image_url, h.name as heritage_name, h.image_url as heritage_image_url, b.created_at
 			  FROM badges b 
 			  JOIN heritage h ON b.heritage_id = h.heritage_id
 			  ORDER BY b.created_at DESC`
@@ -40,7 +40,7 @@ func (r *MySQLRepository) GetAllBadges(ctx context.Context) ([]BadgeWithHeritage
 	for rows.Next() {
 		var badge BadgeWithHeritage
 		err := rows.Scan(&badge.BadgeID, &badge.HeritageID, &badge.Name, &badge.Description, 
-			&badge.ImageURL, &badge.HeritageName, &badge.CreatedAt)
+			&badge.ImageURL, &badge.HeritageName, &badge.HeritageImageURL, &badge.CreatedAt)
 		if err != nil {
 			return nil, errors.InternalServerError("Database error")
 		}
@@ -64,7 +64,7 @@ func (r *MySQLRepository) GetAllBadgesCount(ctx context.Context) (int, error) {
 }
 
 func (r *MySQLRepository) GetBadgeByID(ctx context.Context, badgeID int) (*BadgeWithHeritage, error) {
-	query := `SELECT b.badge_id, b.heritage_id, b.name, b.description, b.image_url, h.name as heritage_name, b.created_at
+	query := `SELECT b.badge_id, b.heritage_id, b.name, b.description, b.image_url, h.name as heritage_name, h.image_url as heritage_image_url, b.created_at
 			  FROM badges b 
 			  JOIN heritage h ON b.heritage_id = h.heritage_id
 			  WHERE b.badge_id = ?`
@@ -73,7 +73,7 @@ func (r *MySQLRepository) GetBadgeByID(ctx context.Context, badgeID int) (*Badge
 
 	badge := &BadgeWithHeritage{}
 	err := row.Scan(&badge.BadgeID, &badge.HeritageID, &badge.Name, &badge.Description, 
-		&badge.ImageURL, &badge.HeritageName, &badge.CreatedAt)
+		&badge.ImageURL, &badge.HeritageName, &badge.HeritageImageURL, &badge.CreatedAt)
 	
 	if err != nil {
 		if err == sql.ErrNoRows {

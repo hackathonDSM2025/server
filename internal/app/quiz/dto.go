@@ -36,8 +36,10 @@ type SubmitData struct {
 }
 
 type BadgeData struct {
-	Name     string `json:"name"`
-	ImageURL string `json:"imageUrl"`
+	Name              string `json:"name"`
+	ImageURL          string `json:"imageUrl"`
+	HeritageName      string `json:"heritageName"`
+	HeritageImageURL  string `json:"heritageImageUrl"`
 }
 
 type IncorrectAnswer struct {

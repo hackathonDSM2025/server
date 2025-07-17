@@ -11,7 +11,7 @@ type Repository interface {
 	GetQuizByHeritageID(ctx context.Context, heritageID int) (*Quiz, error)
 	GetQuestionsByQuizID(ctx context.Context, quizID int) ([]Question, error)
 	UpdateUserVisitScore(ctx context.Context, userID, heritageID, score int) error
-	GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error)
+	GetBadgeByHeritageID(ctx context.Context, heritageID int) (*BadgeWithHeritage, error)
 	CreateUserBadge(ctx context.Context, userID, badgeID int) error
 	CheckUserBadgeExists(ctx context.Context, userID, badgeID int) (bool, error)
 	GetUserVisitStatus(ctx context.Context, userID, heritageID int) (*UserVisitStatus, error)
@@ -96,15 +96,17 @@ func (r *MySQLRepository) UpdateUserVisitScore(ctx context.Context, userID, heri
 	return nil
 }
 
-func (r *MySQLRepository) GetBadgeByHeritageID(ctx context.Context, heritageID int) (*Badge, error) {
-	query := `SELECT badge_id, name, description, image_url, created_at 
-			  FROM badges WHERE heritage_id = ? LIMIT 1`
+func (r *MySQLRepository) GetBadgeByHeritageID(ctx context.Context, heritageID int) (*BadgeWithHeritage, error) {
+	query := `SELECT b.badge_id, b.name, b.description, b.image_url, h.name as heritage_name, h.image_url as heritage_image_url, b.created_at 
+			  FROM badges b 
+			  JOIN heritage h ON b.heritage_id = h.heritage_id
+			  WHERE b.heritage_id = ? LIMIT 1`
 	
 	row := r.db.QueryRowContext(ctx, query, heritageID)
 
-	badge := &Badge{}
+	badge := &BadgeWithHeritage{}
 	err := row.Scan(&badge.BadgeID, &badge.Name, &badge.Description, 
-		&badge.ImageURL, &badge.CreatedAt)
+		&badge.ImageURL, &badge.HeritageName, &badge.HeritageImageURL, &badge.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil

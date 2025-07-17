@@ -31,11 +31,12 @@ func (s *BadgeService) GetAllBadges(ctx context.Context) (*AllBadgesData, error)
 	var badgesDTO []BadgeBasic
 	for _, badge := range badges {
 		badgesDTO = append(badgesDTO, BadgeBasic{
-			BadgeID:      badge.BadgeID,
-			Name:         badge.Name,
-			ImageURL:     badge.ImageURL,
-			HeritageName: badge.HeritageName,
-			Description:  badge.Description,
+			BadgeID:           badge.BadgeID,
+			Name:              badge.Name,
+			ImageURL:          badge.ImageURL,
+			HeritageName:      badge.HeritageName,
+			HeritageImageURL:  badge.HeritageImageURL,
+			Description:       badge.Description,
 		})
 	}
 
@@ -52,11 +53,12 @@ func (s *BadgeService) GetBadgeByID(ctx context.Context, badgeID int) (*BadgeDet
 	}
 
 	return &BadgeDetailData{
-		BadgeID:      badge.BadgeID,
-		Name:         badge.Name,
-		Description:  badge.Description,
-		ImageURL:     badge.ImageURL,
-		HeritageName: badge.HeritageName,
-		CreatedAt:    badge.CreatedAt.Format("2006-01-02 15:04:05"),
+		BadgeID:           badge.BadgeID,
+		Name:              badge.Name,
+		Description:       badge.Description,
+		ImageURL:          badge.ImageURL,
+		HeritageName:      badge.HeritageName,
+		HeritageImageURL:  badge.HeritageImageURL,
+		CreatedAt:         badge.CreatedAt.Format("2006-01-02 15:04:05"),
 	}, nil
 }

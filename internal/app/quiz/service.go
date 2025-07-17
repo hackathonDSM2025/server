@@ -125,8 +125,10 @@ func (s *QuizService) SubmitQuiz(ctx context.Context, userID, heritageID int, an
 				}
 
 				newBadge = &BadgeData{
-					Name:     badge.Name,
-					ImageURL: badge.ImageURL,
+					Name:              badge.Name,
+					ImageURL:          badge.ImageURL,
+					HeritageName:      badge.HeritageName,
+					HeritageImageURL:  badge.HeritageImageURL,
 				}
 			}
 		}

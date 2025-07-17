@@ -11,11 +11,12 @@ type AllBadgesData struct {
 }
 
 type BadgeBasic struct {
-	BadgeID      int    `json:"badgeId"`
-	Name         string `json:"name"`
-	ImageURL     string `json:"imageUrl"`
-	HeritageName string `json:"heritageName"`
-	Description  string `json:"description"`
+	BadgeID           int    `json:"badgeId"`
+	Name              string `json:"name"`
+	ImageURL          string `json:"imageUrl"`
+	HeritageName      string `json:"heritageName"`
+	HeritageImageURL  string `json:"heritageImageUrl"`
+	Description       string `json:"description"`
 }
 
 type BadgeDetailResponse struct {
@@ -24,10 +25,11 @@ type BadgeDetailResponse struct {
 }
 
 type BadgeDetailData struct {
-	BadgeID      int    `json:"badgeId"`
-	Name         string `json:"name"`
-	Description  string `json:"description"`
-	ImageURL     string `json:"imageUrl"`
-	HeritageName string `json:"heritageName"`
-	CreatedAt    string `json:"createdAt"`
+	BadgeID           int    `json:"badgeId"`
+	Name              string `json:"name"`
+	Description       string `json:"description"`
+	ImageURL          string `json:"imageUrl"`
+	HeritageName      string `json:"heritageName"`
+	HeritageImageURL  string `json:"heritageImageUrl"`
+	CreatedAt         string `json:"createdAt"`
 }

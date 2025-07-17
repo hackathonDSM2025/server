@@ -134,7 +134,7 @@ func (r *MySQLRepository) GetUserBadgeCount(ctx context.Context, userID int) (in
 }
 
 func (r *MySQLRepository) GetUserBadges(ctx context.Context, userID int) ([]UserBadge, error) {
-	query := `SELECT b.name, b.image_url, ub.earned_at, h.name as heritage_name
+	query := `SELECT b.name, b.image_url, ub.earned_at, h.name as heritage_name, h.image_url as heritage_image_url
 			  FROM user_badges ub
 			  JOIN badges b ON ub.badge_id = b.badge_id
 			  JOIN heritage h ON b.heritage_id = h.heritage_id
@@ -150,7 +150,7 @@ func (r *MySQLRepository) GetUserBadges(ctx context.Context, userID int) ([]User
 	var badges []UserBadge
 	for rows.Next() {
 		var badge UserBadge
-		err := rows.Scan(&badge.Name, &badge.ImageURL, &badge.EarnedAt, &badge.HeritageName)
+		err := rows.Scan(&badge.Name, &badge.ImageURL, &badge.EarnedAt, &badge.HeritageName, &badge.HeritageImageURL)
 		if err != nil {
 			return nil, errors.InternalServerError("Database error")
 		}

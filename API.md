@@ -425,7 +425,8 @@ Authorization: Bearer <JWT_TOKEN>
         "name": "경복궁 마스터",
         "imageUrl": "https://example.com/badges/gyeongbokgung.png",
         "earnedAt": "2025-07-16",
-        "heritageName": "경복궁"
+        "heritageName": "경복궁",
+        "heritageImageUrl": "https://example.com/images/gyeongbokgung.jpg"
       }
     ]
   }
@@ -512,7 +513,9 @@ Authorization: Bearer <JWT_TOKEN>
     "canRetry": false,
     "newBadge": {
       "name": "경복궁 마스터",
-      "imageUrl": "https://example.com/badges/gyeongbokgung.png"
+      "imageUrl": "https://example.com/badges/gyeongbokgung.png",
+      "heritageName": "경복궁",
+      "heritageImageUrl": "https://example.com/images/gyeongbokgung.jpg"
     }
   }
 }
@@ -586,6 +589,7 @@ Authorization: Bearer <JWT_TOKEN>
         "name": "경복궁 마스터",
         "imageUrl": "https://example.com/badges/gyeongbokgung.png",
         "heritageName": "경복궁",
+        "heritageImageUrl": "https://example.com/images/gyeongbokgung.jpg",
         "description": "경복궁 퀴즈를 모두 맞혔습니다!"
       },
       {
@@ -593,6 +597,7 @@ Authorization: Bearer <JWT_TOKEN>
         "name": "창덕궁 마스터",
         "imageUrl": "https://example.com/badges/changdeokgung.png",
         "heritageName": "창덕궁",
+        "heritageImageUrl": "https://example.com/images/changdeokgung.jpg",
         "description": "창덕궁 퀴즈를 모두 맞혔습니다!"
       }
     ]
@@ -619,6 +624,7 @@ Authorization: Bearer <JWT_TOKEN>
     "description": "경복궁 퀴즈를 모두 맞혔습니다!",
     "imageUrl": "https://example.com/badges/gyeongbokgung.png",
     "heritageName": "경복궁",
+    "heritageImageUrl": "https://example.com/images/gyeongbokgung.jpg",
     "createdAt": "2025-07-16 16:22:30"
   }
 }
