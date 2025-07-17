@@ -94,7 +94,7 @@ func (r *MySQLRepository) GetUserReviewCount(ctx context.Context, userID int) (i
 }
 
 func (r *MySQLRepository) GetUserReviews(ctx context.Context, userID int) ([]UserReview, error) {
-	query := `SELECT hr.review_id, hr.heritage_id, h.name as heritage_name, hr.rating, hr.review_text, hr.created_at, hr.updated_at
+	query := `SELECT hr.review_id, hr.heritage_id, h.name as heritage_name, h.image_url as heritage_image_url, hr.rating, hr.review_text, hr.created_at, hr.updated_at
 			  FROM heritage_reviews hr
 			  JOIN heritage h ON hr.heritage_id = h.heritage_id
 			  WHERE hr.user_id = ?
@@ -109,7 +109,7 @@ func (r *MySQLRepository) GetUserReviews(ctx context.Context, userID int) ([]Use
 	var reviews []UserReview
 	for rows.Next() {
 		var review UserReview
-		err := rows.Scan(&review.ReviewID, &review.HeritageID, &review.HeritageName, 
+		err := rows.Scan(&review.ReviewID, &review.HeritageID, &review.HeritageName, &review.HeritageImageURL,
 			&review.Rating, &review.ReviewText, &review.CreatedAt, &review.UpdatedAt)
 		if err != nil {
 			return nil, errors.InternalServerError("Database error")

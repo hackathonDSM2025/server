@@ -15,13 +15,14 @@ type VisitedPlace struct {
 }
 
 type UserReview struct {
-	ReviewID     int       `json:"review_id" db:"review_id"`
-	HeritageID   int       `json:"heritage_id" db:"heritage_id"`
-	HeritageName string    `json:"heritage_name" db:"heritage_name"`
-	Rating       int       `json:"rating" db:"rating"`
-	ReviewText   string    `json:"review_text" db:"review_text"`
-	CreatedAt    time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+	ReviewID          int       `json:"review_id" db:"review_id"`
+	HeritageID        int       `json:"heritage_id" db:"heritage_id"`
+	HeritageName      string    `json:"heritage_name" db:"heritage_name"`
+	HeritageImageURL  string    `json:"heritage_image_url" db:"heritage_image_url"`
+	Rating            int       `json:"rating" db:"rating"`
+	ReviewText        string    `json:"review_text" db:"review_text"`
+	CreatedAt         time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type UserBadge struct {

@@ -384,6 +384,7 @@ Authorization: Bearer <JWT_TOKEN>
         "reviewId": 2,
         "heritageId": 1,
         "heritageName": "경복궁",
+        "heritageImageUrl": "https://example.com/images/gyeongbokgung.jpg",
         "rating": 4,
         "reviewText": "Very nice palace with rich history",
         "createdAt": "2025-07-16 16:50:08",
