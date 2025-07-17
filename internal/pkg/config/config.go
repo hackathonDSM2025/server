@@ -32,9 +32,9 @@ type RedisConfig struct {
 }
 
 type JWTConfig struct {
-	Secret               string
-	AccessTokenExpiry    int
-	RefreshTokenExpiry   int
+	Secret             string
+	AccessTokenExpiry  int
+	RefreshTokenExpiry int
 }
 
 var GlobalConfig Config
@@ -42,7 +42,7 @@ var GlobalConfig Config
 func init() {
 
 	redisDB, _ := strconv.Atoi(getEnv("REDIS_DB", "0"))
-	accessTokenExpiry, _ := strconv.Atoi(getEnv("JWT_ACCESS_TOKEN_EXPIRY", "3600"))
+	accessTokenExpiry, _ := strconv.Atoi(getEnv("JWT_ACCESS_TOKEN_EXPIRY", "36000"))
 	refreshTokenExpiry, _ := strconv.Atoi(getEnv("JWT_REFRESH_TOKEN_EXPIRY", "604800"))
 
 	GlobalConfig = Config{
@@ -63,9 +63,9 @@ func init() {
 			DB:       redisDB,
 		},
 		JWT: JWTConfig{
-			Secret:               getEnv("JWT_SECRET", "heritage-tour-secret-key"),
-			AccessTokenExpiry:    accessTokenExpiry,
-			RefreshTokenExpiry:   refreshTokenExpiry,
+			Secret:             getEnv("JWT_SECRET", "heritage-tour-secret-key"),
+			AccessTokenExpiry:  accessTokenExpiry,
+			RefreshTokenExpiry: refreshTokenExpiry,
 		},
 	}
 }
