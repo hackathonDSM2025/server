@@ -14,9 +14,9 @@ INSERT INTO quiz (heritage_id) VALUES (1), (2), (3), (4), (5), (6);
 
 -- 경복궁 퀴즈 (quiz_id = 1)
 INSERT INTO questions (quiz_id, question_text, option1, option2, option3, option4, correct_answer) VALUES
-(1, '경복궁이 창건된 연도는?', '1392년', '1394년', '1395년', '1396년', 3),
+(1, '경복궁에서 ‘경복’의 의미는?', '큰 복을 누리다', '영원한 평화', '왕의 덕을 기린다', '백성의 행복', 1),
 (1, '경복궁이 소실된 사건은?', '을미사변', '임진왜란', '병자호란', '갑신정변', 2),
-(1, '조선총독부 청사가 경복궁에서 업무를 시작한 연도는?', '1924년', '1925년', '1926년', '1927년', 3);
+(1, '일제강점기에 경복궁에 들어서면서 많은 건물이 훼손되고 철거되게 한 주요 건물은?', '일본인 이주 단지', '친일파 저택', '일본군 사령부', '조선총독부 청사', 4);
 
 -- 탑골공원 퀴즈 (quiz_id = 2)
 INSERT INTO questions (quiz_id, question_text, option1, option2, option3, option4, correct_answer) VALUES
