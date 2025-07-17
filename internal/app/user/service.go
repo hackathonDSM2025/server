@@ -79,13 +79,14 @@ func (s *UserService) GetMyReviews(ctx context.Context, userID int) (*MyReviewsD
 	var reviewsDTO []ReviewDTO
 	for _, review := range reviews {
 		reviewsDTO = append(reviewsDTO, ReviewDTO{
-			ReviewID:     review.ReviewID,
-			HeritageID:   review.HeritageID,
-			HeritageName: review.HeritageName,
-			Rating:       review.Rating,
-			ReviewText:   review.ReviewText,
-			CreatedAt:    review.CreatedAt.Format("2006-01-02 15:04:05"),
-			UpdatedAt:    review.UpdatedAt.Format("2006-01-02 15:04:05"),
+			ReviewID:         review.ReviewID,
+			HeritageID:       review.HeritageID,
+			HeritageName:     review.HeritageName,
+			HeritageImageURL: review.HeritageImageURL,
+			Rating:           review.Rating,
+			ReviewText:       review.ReviewText,
+			CreatedAt:        review.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt:        review.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
 
@@ -113,10 +114,11 @@ func (s *UserService) GetMyBadges(ctx context.Context, userID int) (*MyBadgesDat
 	var badgesDTO []BadgeDTO
 	for _, badge := range badges {
 		badgesDTO = append(badgesDTO, BadgeDTO{
-			Name:         badge.Name,
-			ImageURL:     badge.ImageURL,
-			EarnedAt:     badge.EarnedAt.Format("2006-01-02"),
-			HeritageName: badge.HeritageName,
+			Name:             badge.Name,
+			ImageURL:         badge.ImageURL,
+			EarnedAt:         badge.EarnedAt.Format("2006-01-02"),
+			HeritageName:     badge.HeritageName,
+			HeritageImageURL: badge.HeritageImageURL,
 		})
 	}
 

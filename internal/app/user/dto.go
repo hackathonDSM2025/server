@@ -56,13 +56,14 @@ type MyReviewsCountData struct {
 }
 
 type ReviewDTO struct {
-	ReviewID     int    `json:"reviewId"`
-	HeritageID   int    `json:"heritageId"`
-	HeritageName string `json:"heritageName"`
-	Rating       int    `json:"rating"`
-	ReviewText   string `json:"reviewText"`
-	CreatedAt    string `json:"createdAt"`
-	UpdatedAt    string `json:"updatedAt"`
+	ReviewID         int    `json:"reviewId"`
+	HeritageID       int    `json:"heritageId"`
+	HeritageName     string `json:"heritageName"`
+	HeritageImageURL string `json:"heritageImageUrl"`
+	Rating           int    `json:"rating"`
+	ReviewText       string `json:"reviewText"`
+	CreatedAt        string `json:"createdAt"`
+	UpdatedAt        string `json:"updatedAt"`
 }
 
 type MyBadgesResponse struct {
@@ -85,9 +86,10 @@ type MyBadgesCountData struct {
 }
 
 type BadgeDTO struct {
-	Name         string `json:"name"`
-	ImageURL     string `json:"imageUrl"`
-	EarnedAt     string `json:"earnedAt"`
-	HeritageName string `json:"heritageName"`
+	Name             string `json:"name"`
+	ImageURL         string `json:"imageUrl"`
+	EarnedAt         string `json:"earnedAt"`
+	HeritageName     string `json:"heritageName"`
+	HeritageImageURL string `json:"heritageImageUrl"`
 }
 
